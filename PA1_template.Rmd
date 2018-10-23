@@ -136,5 +136,34 @@ ggplot(new_df_total_steps_by_day, aes(x=total_steps))+
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+```{r}
+activity_removed_miss$weekday <- activity_removed_miss$date
+activity_removed_miss$weekday <- (lubridate::wday(as.Date(activity_removed_miss$weekday),week_start = 1))
 
+v <- activity_removed_miss$weekday == 6 | activity_removed_miss$weekday == 7
+activity_removed_miss$weekday[v] <- "weekend"
+activity_removed_miss$weekday[!v] <- "weekdays"
+activity_removed_miss$weekday <- factor(activity_removed_miss$weekday)
+
+summary(activity_removed_miss)
+
+new_df_total_steps_by_interval <- activity_removed_miss %>%
+  group_by(interval,weekday) %>%
+  summarize(average_steps = mean(steps))
+
+ggplot(new_df_total_steps_by_interval, aes(interval, colour = weekday )) +
+  facet_grid(. ~ weekday) +
+  theme_minimal() +
+  geom_line( aes(y= average_steps))
+```
+
+Plot with time series combined
+
+```{r}
+ggplot(new_df_total_steps_by_interval, aes(interval, colour = weekday )) +
+
+  theme_minimal() +
+  geom_line( aes(y= average_steps))
+
+```
 

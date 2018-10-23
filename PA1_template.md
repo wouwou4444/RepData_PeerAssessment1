@@ -30,6 +30,18 @@ library(tidyverse)
 
 ```r
 library(ggplot2)
+library(lubridate)
+```
+
+```
+## 
+## Attaching package: 'lubridate'
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     date
 ```
 
 ## Loading and preprocessing the data
@@ -196,4 +208,51 @@ ggplot(new_df_total_steps_by_day, aes(x=total_steps))+
 ## Are there differences in activity patterns between weekdays and weekends?
 
 
+```r
+activity_removed_miss$weekday <- activity_removed_miss$date
+activity_removed_miss$weekday <- (lubridate::wday(as.Date(activity_removed_miss$weekday),week_start = 1))
+
+v <- activity_removed_miss$weekday == 6 | activity_removed_miss$weekday == 7
+activity_removed_miss$weekday[v] <- "weekend"
+activity_removed_miss$weekday[!v] <- "weekdays"
+activity_removed_miss$weekday <- factor(activity_removed_miss$weekday)
+
+summary(activity_removed_miss)
+```
+
+```
+##      steps                date          interval          weekday     
+##  Min.   :  0.00   2012-10-01:  288   Min.   :   0.0   weekdays:12960  
+##  1st Qu.:  0.00   2012-10-02:  288   1st Qu.: 588.8   weekend : 4608  
+##  Median :  0.00   2012-10-03:  288   Median :1177.5                   
+##  Mean   : 37.38   2012-10-04:  288   Mean   :1177.5                   
+##  3rd Qu.: 27.00   2012-10-05:  288   3rd Qu.:1766.2                   
+##  Max.   :806.00   2012-10-06:  288   Max.   :2355.0                   
+##                   (Other)   :15840
+```
+
+```r
+new_df_total_steps_by_interval <- activity_removed_miss %>%
+  group_by(interval,weekday) %>%
+  summarize(average_steps = mean(steps))
+
+ggplot(new_df_total_steps_by_interval, aes(interval, colour = weekday )) +
+  facet_grid(. ~ weekday) +
+  theme_minimal() +
+  geom_line( aes(y= average_steps))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
+Plot with time series combined
+
+
+```r
+ggplot(new_df_total_steps_by_interval, aes(interval, colour = weekday )) +
+
+  theme_minimal() +
+  geom_line( aes(y= average_steps))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
