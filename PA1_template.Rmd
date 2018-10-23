@@ -5,21 +5,136 @@ output:
     keep_md: true
 ---
 
+## loading libraries
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+
+```
 
 ## Loading and preprocessing the data
+```{r}
+unzip("activity.zip")
+activity <- read.csv("activity.csv")
 
-
+summary(activity)
+```
 
 ## What is mean total number of steps taken per day?
+```{r}
 
+
+df_activity_by_day <- activity %>% 
+  group_by(date) %>%
+  summarize(total_steps=sum(steps, na.rm = TRUE))
+
+mean_total_steps_by_day <- mean(df_activity_by_day$total_steps)
+median_total_steps_by_day <- median(df_activity_by_day$total_steps)
+
+
+```
+
+The mean of total number of steps taken by day is : `r  mean_total_steps_by_day` steps.
+The median is : `r median_total_steps_by_day`.
+
+```{r}
+ggplot(df_activity_by_day, aes(total_steps)) +
+  theme_minimal() +
+  geom_histogram( binwidth = 500, stat = "bin", na.rm = TRUE)
+
+```
 
 
 ## What is the average daily activity pattern?
 
+```{r averagedailypattern}
+
+
+df_activity_by_interval <- activity %>% 
+  group_by(interval) %>%
+  summarize(average_steps=mean(steps, na.rm = TRUE))
+print(head(df_activity_by_interval))
+
+max_average_steps_by_interval <- max(df_activity_by_interval$average_steps)
+index_interval_max <- df_activity_by_interval$interval[which.max(df_activity_by_interval$average_steps)]
+
+```
+
+The max of average number of steps taken by interval is : `r  max_average_steps_by_interval` steps for the interval `r index_interval_max`
+
+
+```{r}
+ggplot(df_activity_by_interval, aes(interval)) +
+  theme_minimal() +
+  geom_line( aes(y= average_steps))
+
+```
+
+
+```{r}
+ggplot(df_activity_by_interval, aes(average_steps)) +
+  theme_minimal() +
+  geom_histogram( binwidth = 5, stat = "bin", na.rm = TRUE)
+
+```
 
 
 ## Imputing missing values
 
+```{r}
+na_count <- length(which(is.na(activity$steps)))
+```
+
+There is `r na_count` NAs value in the steps column.
+
+Replace NA values with average step of the 5-min interval
+```{r}
+
+activity_removed_miss <- activity
+v <- which(is.na(activity$steps))
+
+find_interval_average <- function (x, df, column1, column2) { 
+  index <- grep(pattern = paste("^",x,"$",sep=""), 
+     df[[column1]], 
+     value = FALSE
+      )
+  # print(head(list))
+  return(df[index, column2])
+  # return(column2)
+}
+
+interval_name <- activity$interval[v]
+activity_removed_miss$steps[v] <- as.vector(sapply(interval_name, find_interval_average, df_activity_by_interval, "interval","average_steps"), mode = "numeric")
+
+summary(activity_removed_miss)
+
+```
+
+Compute the total number of steps by day
+```{r}
+new_df_total_steps_by_day <- activity_removed_miss %>%
+  group_by(date) %>%
+  summarize(total_steps = sum(steps))
+
+new_mean_total_steps_by_day  <- mean(new_df_total_steps_by_day$total_steps)
+new_median_total_steps_by_day <- median(new_df_total_steps_by_day$total_steps)
+```
+
+The **mean** of total number of steps taken by day is : `r  new_mean_total_steps_by_day` steps (old value with NAs : `r  mean_total_steps_by_day`).
+The **median** is : `r new_median_total_steps_by_day` (old value: `r median_total_steps_by_day`.)
+
+**Histogram** of the total number of steps by day
+```{r}
+ggplot(new_df_total_steps_by_day, aes(x=total_steps))+
+  theme_minimal() +
+  geom_histogram(binwidth = 500)
+
+
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
+
