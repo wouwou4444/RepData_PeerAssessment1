@@ -6,7 +6,7 @@ output:
 ---
 
 ## loading libraries
-```{r}
+```{r results='hide', warning=FALSE, message=FALSE}
 library(tidyverse)
 library(ggplot2)
 library(lubridate)
@@ -154,7 +154,9 @@ new_df_total_steps_by_interval <- activity_removed_miss %>%
 ggplot(new_df_total_steps_by_interval, aes(interval, colour = weekday )) +
   theme_minimal() +
   facet_wrap(. ~ weekday, nrow = 2) +
+  theme(strip.text = element_text(size=18)) +
   geom_line( aes(y= average_steps))
+
 ```
 
 Plot with time series combined

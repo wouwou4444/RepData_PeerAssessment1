@@ -9,39 +9,8 @@ output:
 
 ```r
 library(tidyverse)
-```
-
-```
-## -- Attaching packages -------------------------------------------------------------------------------------- tidyverse 1.2.1 --
-```
-
-```
-## v ggplot2 3.0.0     v purrr   0.2.5
-## v tibble  1.4.2     v dplyr   0.7.6
-## v tidyr   0.8.1     v stringr 1.3.1
-## v readr   1.1.1     v forcats 0.3.0
-```
-
-```
-## -- Conflicts ----------------------------------------------------------------------------------------- tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()
-```
-
-```r
 library(ggplot2)
 library(lubridate)
-```
-
-```
-## 
-## Attaching package: 'lubridate'
-```
-
-```
-## The following object is masked from 'package:base':
-## 
-##     date
 ```
 
 ## Loading and preprocessing the data
@@ -239,6 +208,7 @@ new_df_total_steps_by_interval <- activity_removed_miss %>%
 ggplot(new_df_total_steps_by_interval, aes(interval, colour = weekday )) +
   theme_minimal() +
   facet_wrap(. ~ weekday, nrow = 2) +
+  theme(strip.text = element_text(size=18)) +
   geom_line( aes(y= average_steps))
 ```
 
