@@ -152,8 +152,8 @@ new_df_total_steps_by_interval <- activity_removed_miss %>%
   summarize(average_steps = mean(steps))
 
 ggplot(new_df_total_steps_by_interval, aes(interval, colour = weekday )) +
-  facet_grid(. ~ weekday) +
   theme_minimal() +
+  facet_wrap(. ~ weekday, nrow = 2) +
   geom_line( aes(y= average_steps))
 ```
 
